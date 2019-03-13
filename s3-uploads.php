@@ -8,6 +8,8 @@ Version: 2.0.0
 Author URI: http://hmn.md
 */
 
+require_once __DIR__ . '/vendor/autoload.php';
+
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once dirname( __FILE__ ) . '/inc/class-s3-uploads-wp-cli-command.php';
 }
@@ -15,12 +17,6 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 add_action( 'plugins_loaded', 's3_uploads_init' );
 
 function s3_uploads_init() {
-	// Ensure the AWS SDK can be loaded.
-	if ( ! class_exists( '\\Aws\\S3\\S3Client' ) ) {
-		// Require AWS Autoloader file.
-		require_once dirname( __FILE__ ) . '/lib/aws-sdk/aws-autoloader.php';
-	}
-
 	if ( ! s3_uploads_check_requirements() ) {
 		return;
 	}
@@ -49,9 +45,7 @@ function s3_uploads_init() {
 	// reliable WordPress hooks we can use to load this only when we need. Most infuriating is
 	// WordPress does class_exists( 'getID3', false ) so we can't use an autoloader to override
 	// the version being loaded.
-	if ( ! class_exists( 'getID3' ) ) {
-		require_once dirname( __FILE__ ) . '/lib/getid3/getid3.php';
-	}
+	class_exists( 'getID3', true );
 
 	// Add filters to "wrap" the wp_privacy_personal_data_export_file function call as we need to
 	// switch out the personal_data directory to a local temp folder, and then upload after it's
